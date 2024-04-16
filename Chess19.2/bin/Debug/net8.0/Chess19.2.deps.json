@@ -1,0 +1,36 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "Chess19.2/1.0.0": {
+        "dependencies": {
+          "ChessLibrary19.2": "1.0.0"
+        },
+        "runtime": {
+          "Chess19.2.dll": {}
+        }
+      },
+      "ChessLibrary19.2/1.0.0": {
+        "runtime": {
+          "ChessLibrary19.2.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Chess19.2/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "ChessLibrary19.2/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
