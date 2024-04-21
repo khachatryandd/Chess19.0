@@ -8,17 +8,19 @@ internal class Mate
     Rook rook2 = new Rook();
     Queen queen = new Queen();
     King wKing = new King();
+    King bKing = new King();
     /// <summary>
     /// Allows the white king to make a move.
     /// </summary>
     /// <param name="current">The current position of the white King.</param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
-    public Coordinates WhiteKingMove(Coordinates current)
+    public Coordinates WhiteKingMove(Coordinates current, List<Coordinates> coordinates)
     {
         Console.WriteLine("Enter the move coordinate");
         Coordinates destination = new Coordinates(Console.ReadLine());
-        if (wKing.Move(current, destination))
+        Validate validate = new Validate();
+        if (wKing.Move(current, destination) )
         {
             return destination;
         }
@@ -41,50 +43,68 @@ internal class Mate
     {
         Board board = new Board();
         bool mate = false;
-        coordWK = WhiteKingMove(coordWK);
+        coordWK = WhiteKingMove(coordWK, coordinates);
         do
         {
             List<Coordinates> rook1Steps = rook1.FilterValidMoves(coordR1, coordinates);
             List<Coordinates> rook2Steps = rook2.FilterValidMoves(coordR2, coordinates);
             List<Coordinates> queenSteps = queen.FilterValidMoves(coordQ, coordinates);
+            List<Coordinates> wKingSteps = wKing.FilterValidMoves(coordWK, coordinates);
+            List<Coordinates> bKingSteps = bKing.FilterValidMoves(coordBK, coordinates);
+            List<List<Coordinates>> CoordinatesList = new List<List<Coordinates>>();
+            CoordinatesList.Add(rook1Steps);
+            CoordinatesList.Add(rook2Steps);
+            CoordinatesList.Add(queenSteps);
+            CoordinatesList.Add(bKingSteps);
+            CoordinatesList.Add(wKingSteps);
+           
             if (Math.Abs(coordR1.number - coordWK.number) != 1)
             {
-                if (CheckR1(rook1Steps,ref coordR1, coordWK))
+                if (CheckR1(CoordinatesList,ref coordR1, coordWK))
                 {
                     board.PrintFiguresLetterOnTheBoard(coordR1, coordR2, coordQ, coordBK, coordWK);
                 }
-                else if (CheckR2(rook2Steps,ref coordR2, coordWK))
+                else if (CheckR2(CoordinatesList, ref coordR2, coordWK))
                 {
                     board.PrintFiguresLetterOnTheBoard(coordR1, coordR2, coordQ, coordBK, coordWK);
                 }
                 else
-                {
+                { 
+                    if((int)coordR1.letter<7)
                     coordR1.letter += 1;
+                    else if((int)coordR1.letter==7)
+                    coordR1.letter -= 1;
                     board.PrintFiguresLetterOnTheBoard(coordR1, coordR2, coordQ, coordBK, coordWK);
                 }
             }
             else if (Math.Abs(coordR2.number - coordWK.number) != 1)
             {
-                if (CheckR2(rook2Steps,ref coordR2, coordWK))
+                if (CheckR2(CoordinatesList, ref coordR2, coordWK))
                 {
                     board.PrintFiguresLetterOnTheBoard(coordR1, coordR2, coordQ, coordBK, coordWK);
                 }
                 else
                 {
-                    coordR2.letter += 2;
+                    if ((int)coordR2.letter < 7)
+                        coordR2.letter += 2;
+                    else if ((int)coordR2.letter >= 7)
+                        coordR2.letter -= 2;
                     board.PrintFiguresLetterOnTheBoard(coordR1, coordR2, coordQ, coordBK, coordWK);
                 }
             }
             else if (Math.Abs(coordQ.number - coordWK.number) != 0)
             {
-                if (CheckQ(queenSteps,ref coordQ, coordWK))
+                if (CheckQ(CoordinatesList, ref coordQ, coordWK))
                 {
-                    coordQ.number = coordWK.number;
+
                     board.PrintFiguresLetterOnTheBoard(coordR1, coordR2, coordQ, coordBK, coordWK);
                 }
                 else
                 {
-                    coordQ.letter += 3;
+                    if ((int)coordQ.letter < 6)
+                        coordQ.letter += 3;
+                    else if ((int)coordQ.letter >= 6)
+                        coordQ.letter -= 3;
                     board.PrintFiguresLetterOnTheBoard(coordR1, coordR2, coordQ, coordBK, coordWK);
                 }
             }
@@ -98,7 +118,7 @@ internal class Mate
             else
             {
                 mate = false;
-                coordWK = WhiteKingMove(coordWK);
+                coordWK = WhiteKingMove(coordWK, coordinates);
             }
 
         } while (!mate);
@@ -111,9 +131,14 @@ internal class Mate
     /// <param name="coordR1"></param>
     /// <param name="coordWK"></param>
     /// <returns></returns>
-    public bool CheckR1(List<Coordinates> rook1Steps,ref Coordinates coordR1, Coordinates coordWK)
+    public bool CheckR1(List<List<Coordinates>> CoordinatesList, ref Coordinates coordR1, Coordinates coordWK)
     {
         Coordinates c = new Coordinates();
+        List<Coordinates> r1Moves = CoordinatesList[0];
+        List<Coordinates> r2Moves = CoordinatesList[1];
+        List<Coordinates> qMoves = CoordinatesList[2];
+        List<Coordinates> bkMoves = CoordinatesList[3];
+        List<Coordinates> wkMoves = CoordinatesList[4];
         if (coordWK.number != 1)
         {
             c.number = coordWK.number - 1;
@@ -123,7 +148,14 @@ internal class Mate
             c.number = coordWK.number + 1;
         }
         c.letter = coordR1.letter;
-        if (rook1Steps.Contains(c))
+        if (r1Moves.Contains(c) && !wkMoves.Contains(c))
+        {
+            coordR1.number = c.number;
+            coordR1.letter = c.letter;
+            return true;
+        }
+        else if(r1Moves.Contains(c) && wkMoves.Contains(c) &&
+            (r2Moves.Contains(c) || qMoves.Contains(c) || bkMoves.Contains(c)) )
         {
             coordR1.number = c.number;
             coordR1.letter = c.letter;
@@ -138,9 +170,14 @@ internal class Mate
     /// <param name="coordR2"></param>
     /// <param name="coordWK"></param>
     /// <returns></returns>
-    public bool CheckR2(List<Coordinates> rook2Steps,ref Coordinates coordR2, Coordinates coordWK)
+    public bool CheckR2(List<List<Coordinates>> CoordinatesList, ref Coordinates coordR2, Coordinates coordWK)
     {
         Coordinates c = new Coordinates();
+        List<Coordinates> r1Moves = CoordinatesList[0];
+        List<Coordinates> r2Moves = CoordinatesList[1];
+        List<Coordinates> qMoves = CoordinatesList[2];
+        List<Coordinates> bkMoves = CoordinatesList[3];
+        List<Coordinates> wkMoves = CoordinatesList[4];
         if (coordWK.number != 8)
         {
             c.number = coordWK.number + 1;
@@ -150,7 +187,14 @@ internal class Mate
             c.number = coordWK.number - 1;
         }
         c.letter = coordR2.letter;
-        if (rook2Steps.Contains(c))
+        if (r2Moves.Contains(c) && !wkMoves.Contains(c))
+        {
+            coordR2.number = c.number;
+            coordR2.letter = c.letter;
+            return true;
+        }
+        else if (r2Moves.Contains(c) && wkMoves.Contains(c) &&
+            (r1Moves.Contains(c) || qMoves.Contains(c) || bkMoves.Contains(c)))
         {
             coordR2.number = c.number;
             coordR2.letter = c.letter;
@@ -165,13 +209,28 @@ internal class Mate
     /// <param name="coordQ"></param>
     /// <param name="coordWK"></param>
     /// <returns></returns>
-    public bool CheckQ(List<Coordinates> queenSteps,ref Coordinates coordQ, Coordinates coordWK)
+    public bool CheckQ(List<List<Coordinates>> CoordinatesList, ref Coordinates coordQ, Coordinates coordWK)
     {
         Coordinates c = new Coordinates();
+        List<Coordinates> r1Moves = CoordinatesList[0];
+        List<Coordinates> r2Moves = CoordinatesList[1];
+        List<Coordinates> qMoves = CoordinatesList[2];
+        List<Coordinates> bkMoves = CoordinatesList[3];
+        List<Coordinates> wkMoves = CoordinatesList[4];
+
         c.number = coordWK.number;
         c.letter = coordQ.letter;
-        if(queenSteps.Contains(c))
+        if (qMoves.Contains(c) && !wkMoves.Contains(c))
         {
+            coordQ.number = c.number;
+            coordQ.letter = c.letter;
+            return true;
+        }
+        else if(qMoves.Contains(c) && wkMoves.Contains(c) &&
+            (r1Moves.Contains(c) || r2Moves.Contains(c) || bkMoves.Contains(c)))
+        {
+            coordQ.number = c.number;
+            coordQ.letter = c.letter;
             return true;
         }
         return false;

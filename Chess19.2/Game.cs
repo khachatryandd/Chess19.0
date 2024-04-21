@@ -47,22 +47,22 @@ class ClassicGame
         {
             case "Rook":
                 if (rook.Move(first, second))
-                    board.CreateBoard(first,second,Symbols.R);
+                    board.CreateBoard(first, second, Symbols.R);
                 break;
             case "Queen":
-                if(queen.Move(first, second))
+                if (queen.Move(first, second))
                     board.CreateBoard(first, second, Symbols.Q);
                 break;
             case "Knight":
-                if(knight.Move(first, second))
+                if (knight.Move(first, second))
                     board.CreateBoard(first, second, Symbols.N);
                 break;
             case "Bishop":
-                if(bishop.Move(first, second))
+                if (bishop.Move(first, second))
                     board.CreateBoard(first, second, Symbols.B);
                 break;
             case "King":
-                if(king.Move(first, second))
+                if (king.Move(first, second))
                     board.CreateBoard(first, second, Symbols.K);
                 break;
             default:
@@ -79,7 +79,7 @@ class QueenGame
     {
         Console.WriteLine("Welcome to the Queen Game!\nPlease, enter coordinates for the enemy(B)");
         Console.Write("Rook1: ");
-        Coordinates coordR1 = new Coordinates(Console.ReadLine()); 
+        Coordinates coordR1 = new Coordinates(Console.ReadLine());
         Console.Write("Rook2: ");
         Coordinates coordR2 = new Coordinates(Console.ReadLine());
         Console.Write("Queen: ");
@@ -100,7 +100,7 @@ class QueenGame
             && !validate.CheckPat(coordR1, coordR2, coordQ, coordBK, coordWK))
         {
             board.PrintFiguresLetterOnTheBoard(coordR1, coordR2, coordQ, coordBK, coordWK);
-            mate.Mat(coordinates,coordR1, coordR2, coordQ, coordBK, coordWK);
+            mate.Mat(coordinates, coordR1, coordR2, coordQ, coordBK, coordWK);
         }
     }
 }
